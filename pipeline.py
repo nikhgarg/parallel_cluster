@@ -59,7 +59,7 @@ import time
 def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_parameter_set, number_parameters_to_generate
                                       , n_nodes = None
                                       , save_file = 'results.csv'
-                                      , save_model = False):
+                                      ):
     pool = Pool(n_nodes)
     
     # if the results file already exists, load it so we can append to it
@@ -78,6 +78,13 @@ def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_p
     
     
     # Each simulator(argument) call runs in a separate thread, and returns it's result within the pool command. The pool imap_unordered then returns the results one by one (it is actually returning as a generator as well...)
+
+    # In other words the following line is equivalent to the following, except that first for loop is running in parallel on different threads, and we don't have to wait for all the runs to finish before we start saving the results to a file:
+        #  results = []
+        #  for parameterset in generator:
+            #  results.append(simulator(parameterset))
+        # for result in results:
+            # ...
     for result in pool.imap_unordered(simulator, generator):
         
         # This for loop is running in serial and so saving the file is thread safe. 
