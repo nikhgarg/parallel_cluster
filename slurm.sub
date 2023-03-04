@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH -J jobname                        # Job name
+#SBATCH -o /home/ng343/projectfolder/slurm_output/comp_%j.out                  # output file (%j expands to jobID)
+#SBATCH -e /home/ng343/projectfolder/slurm_output/comp_%j.err                  # error log file (%j expands to jobID)
+#SBATCH --mail-type=ALL                      # Request status by email
+#SBATCH --mail-user=ng343@cornell.edu.       # Email address to send results to.
+#SBATCH -N 1                                 # Total number of nodes requested
+#SBATCH -n 53                                 # Total number of cores requested
+#SBATCH --get-user-env                       # retrieve the users login environment
+#SBATCH --mem=72000                           # server memory requested (per node)
+#SBATCH -t 108:00:00                           # Time limit (hh:mm:ss)
+#SBATCH --partition=garg #default_partition     #garg              # Request partition
+
+source /share/apps/anaconda3/2020.11/etc/profile.d/conda.sh
+
+folder=/home/ng343/projectfolder
+cd $folder
+conda activate projectenv # activate the conda environment
+
+python pipeline.py "runlabelexample" --hyperparameters_file "hyperparameters.csv" --num_times_to_repeat_each_parameter_set 10 --number_parameters_to_generate 100
+
+
