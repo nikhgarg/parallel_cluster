@@ -128,7 +128,7 @@ if __name__ == '__main__':
     parser.add_argument("runlabel", type = str)
     parser.add_argument("--hyperparameters_file", type = str, default = 'hyperparameters.csv')
     parser.add_argument("--num_times_to_repeat_each_parameter_set", type = int, default = 100)
-    parser.add_argument("--number_parameters_to_generate", type = str, default = 1000)
+    parser.add_argument("--number_parameters_to_generate", type = int, default = 1000)
     
     parser.add_argument("--results_folder", type = str, default = 'results/')
     
