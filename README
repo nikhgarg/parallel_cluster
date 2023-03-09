@@ -1,0 +1,23 @@
+This repository contains two ways to parallelize jobs on a slurm-based cluster, especially when you want to run a large number of parameter simulations using the same model.
+
+1. parallelize_within_one_job: Submits one slurm job that should take up as many cores as are available. It then uses multiprocessing package to parallelize runs within this job.
+
+    Pros:
+     - No overhead to submit jobs (~1 second per job)
+     - Allows saving all results to a single file without worrying about threading issues.
+
+     Cons:
+     - Unfortunately, doesn't work with PyStan3. PyStan3 requires a separate process for each chain, and multiprocessing doesn't allow forking processes. This is a known issue with PyStan3. 
+
+     tldr: Best used if you want to run _many_ simulations where each simulation doesn't take up much time.
+
+2. parallelize_across_jobs: Submits multiple slurm jobs, each of which runs a single simulation. 
+    Pros:
+     - Works with PyStan3
+     - Allows forking processes, so you can run multiple chains in parallel in Stan
+    
+    Cons:
+     - Overhead to submit jobs (~1 second per job)
+     - Requires saving results to separate files, which can be a pain to combine later.
+
+    tldr: Use if you want to use PyStan3. 
