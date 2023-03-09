@@ -23,6 +23,15 @@ In this code, we use the multi-processing library to run simulations in parallel
                         i = 0
                         while i < n:
                             yield i
+                            i+= 1
+                            
+                    def range(n):
+                        arr = []
+                        i = 0
+                        while i < n:
+                            arr.append(i)
+                            i+= 1 
+                        return arr
                         
         
     4. The imap_unordered function thus loops through the generator and calls the function with each value. These function calls are what are done in the separate threads (in parallel). The functions are allowed to return a result, which are then themselves returned by imap_unordered as another generator.
@@ -37,6 +46,7 @@ In this code, we use the multi-processing library to run simulations in parallel
 def parameter_generator(hyperparameters_to_parameter_generation, num_times_to_repeat_each_parameter_set = 10, number_parameters_to_generate = 1000):
     
     for i in range(number_parameters_to_generate):
+    # while True:
         param1 = np.random.uniform(hyperparameters_to_parameter_generation['min'], hyperparameters_to_parameter_generation['max'])
         
         param2 = np.random.normal(hyperparameters_to_parameter_generation['mean'], hyperparameters_to_parameter_generation['sd'])
@@ -46,11 +56,13 @@ def parameter_generator(hyperparameters_to_parameter_generation, num_times_to_re
 
 # Function that we want to run in parallel, for different parameter values
 def simulator(tup):
+    
     rand1, rand2 = tup
 
     product = rand1 * rand2 + np.random.rand() # do some computation
+    a = np.random.rand()
 
-    return pd.DataFrame({'rand1': [rand1], 'rand2': [rand2], 'product': [product]})
+    return pd.DataFrame({'rand1': [rand1], 'rand2': [rand2], 'product': [product]}), a
 
 
 import time
@@ -72,6 +84,7 @@ def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_p
     
     generator = parameter_generator(hyperparameters_to_parameter_generation, num_times_to_repeat_each_parameter_set, number_parameters_to_generate)
     
+    
     ts = time.time()
     
     minutes_freq_to_save = 5 #save the results file every 5 minutes so that we don't lose everything if the job crashes
@@ -86,7 +99,7 @@ def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_p
         # for result in results:
             # ...
     for result in pool.imap_unordered(simulator, generator):
-        
+        df, a = result
         # This for loop is running in serial and so saving the file is thread safe. 
         
         #save result to file
@@ -105,8 +118,6 @@ def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_p
     
     pool.close()
     return output_df
-
-
 
 import argparse
 if __name__ == '__main__':
