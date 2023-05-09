@@ -56,13 +56,13 @@ def parameter_generator(hyperparameters_to_parameter_generation, num_times_to_re
 
 # Function that we want to run in parallel, for different parameter values
 def simulator(tup):
-    
+    np.random.seed() # IMPORTANT: this is needed to make sure that each thread has a different random seed. Otherwise, each thread will have the same random seed and so will generate the same random numbers.
     rand1, rand2 = tup
 
     product = rand1 * rand2 + np.random.rand() # do some computation
     a = np.random.rand()
 
-    return pd.DataFrame({'rand1': [rand1], 'rand2': [rand2], 'product': [product]}), a
+    return pd.DataFrame({'rand1': [rand1], 'rand2': [rand2], 'product': [product], 'a': a}), a
 
 
 import time
@@ -103,7 +103,7 @@ def pipeline(hyperparameters_to_parameter_generation, num_times_to_repeat_each_p
         # This for loop is running in serial and so saving the file is thread safe. 
         
         #save result to file
-        output_df = pd.concat([output_df,result],ignore_index=True)
+        output_df = pd.concat([output_df,df],ignore_index=True)
         newdone += 1
         
         curtime = time.time()
